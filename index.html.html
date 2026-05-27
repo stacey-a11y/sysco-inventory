@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Sysco Inventory</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;}
+.app{max-width:480px;margin:0 auto;padding-bottom:90px;}
+.hdr{background:#1a5c3a;color:white;padding:12px 16px 10px;position:sticky;top:0;z-index:100;}
+.hdr-top{display:flex;justify-content:space-between;align-items:flex-start;}
+.hdr h1{font-size:17px;font-weight:600;}
+.hdr-sub{font-size:11px;opacity:0.75;margin-bottom:2px;}
+.pbar{height:3px;background:rgba(255,255,255,0.25);margin-top:8px;border-radius:2px;}
+.pfill{height:3px;background:#7ee8a2;border-radius:2px;transition:width 0.3s;}
+.tbar{background:#fff;border-bottom:1px solid #e5e5e5;padding:8px 16px;display:flex;align-items:center;gap:10px;}
+.tbar label{font-size:12px;color:#666;}
+.tbar input{font-size:13px;border:none;background:transparent;color:#111;outline:none;}
+.tbar input[type=text]{width:120px;}
+.dvd{width:1px;height:16px;background:#ddd;}
+.sbar{padding:8px 16px;background:#fff;border-bottom:1px solid #e5e5e5;}
+.sbar input{width:100%;padding:8px 12px;border:1px solid #ddd;border-radius:8px;font-size:14px;background:#f8f8f8;outline:none;}
+.fbar{display:flex;gap:6px;padding:8px 16px;background:#fff;border-bottom:1px solid #e5e5e5;overflow-x:auto;}
+.fbar::-webkit-scrollbar{display:none;}
+.ft{font-size:12px;padding:5px 12px;border-radius:20px;border:1px solid #ddd;background:#f5f5f5;color:#555;cursor:pointer;white-space:nowrap;}
+.ft.on{background:#1a5c3a;color:white;border-color:#1a5c3a;}
+.sh{background:#f0f0f0;padding:9px 16px;border-bottom:1px solid #e5e5e5;border-top:1px solid #e5e5e5;display:flex;align-items:center;justify-content:space-between;user-select:none;}
+.shl{display:flex;align-items:center;gap:8px;cursor:pointer;flex:1;}
+.shl span{font-size:11px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.6px;}
+.sm2{display:flex;align-items:center;gap:6px;}
+.sc{font-size:11px;color:#888;}
+.fp{font-size:10px;background:#fff3cd;color:#856404;border-radius:10px;padding:1px 7px;}
+.cv{font-size:12px;color:#999;transition:transform 0.2s;display:inline-block;}
+.collapsed .cv{transform:rotate(-90deg);}
+.cbtn{font-size:11px;color:#999;border:1px solid #ddd;border-radius:4px;padding:2px 8px;background:#fff;cursor:pointer;white-space:nowrap;}
+.ir{display:flex;align-items:center;padding:10px 16px;border-bottom:1px solid #f0f0f0;background:#fff;gap:8px;}
+.ir.ok{background:#f0faf4;}
+.ir.fl{border-left:3px solid #f0ad00;}
+.iname{flex:1;font-size:13px;color:#222;line-height:1.35;min-width:0;}
+.iloc{font-size:11px;color:#999;display:block;margin-top:1px;}
+.qc{display:flex;align-items:center;gap:4px;flex-shrink:0;}
+.qbtn{width:30px;height:30px;border:1px solid #ddd;border-radius:6px;background:#f5f5f5;font-size:18px;color:#333;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;}
+.qbtn:active{background:#e5e5e5;}
+.qin{width:44px;height:30px;text-align:center;border:1px solid #ddd;border-radius:6px;font-size:13px;background:#fff;color:#111;outline:none;}
+.qin:focus{border-color:#1a5c3a;}
+.ibtn{width:28px;height:28px;border:none;background:transparent;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#ccc;padding:0;-webkit-tap-highlight-color:transparent;}
+.ibtn.fon{color:#f0ad00;}
+.ibtn.non{color:#1a5c3a;}
+.nrow{padding:4px 16px 10px;background:#fff;border-bottom:1px solid #f0f0f0;}
+.nrow textarea{width:100%;font-size:13px;border:1px solid #ddd;border-radius:6px;padding:7px 10px;resize:none;background:#f8f8f8;color:#111;outline:none;font-family:inherit;}
+.foot{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e5e5e5;padding:12px 16px;z-index:100;}
+.fi{max-width:480px;margin:0 auto;display:flex;gap:8px;align-items:center;}
+.flbar{font-size:12px;color:#856404;background:#fff3cd;border-radius:6px;padding:6px 10px;white-space:nowrap;display:none;}
+.sbtn{flex:1;padding:13px;background:#1a5c3a;color:white;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.sbtn:active{opacity:0.88;}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:flex;align-items:flex-end;justify-content:center;}
+.sheet{background:#fff;border-radius:16px 16px 0 0;padding:22px 20px 36px;width:100%;max-width:480px;}
+.sheet h2{font-size:17px;font-weight:600;margin-bottom:8px;}
+.sheet p{font-size:13px;color:#666;margin-bottom:14px;line-height:1.55;}
+.sheet input{width:100%;padding:10px 13px;border:1px solid #ddd;border-radius:8px;font-size:14px;background:#f8f8f8;color:#111;outline:none;margin-bottom:10px;}
+.sheet label{font-size:12px;color:#666;display:block;margin-bottom:4px;}
+.brow{display:flex;gap:10px;margin-top:4px;}
+.brow button{flex:1;padding:12px;border-radius:8px;font-size:14px;cursor:pointer;border:1px solid #ddd;background:#f5f5f5;color:#333;}
+.brow .pr{background:#1a5c3a;color:white;border-color:transparent;font-weight:600;}
+.ibox{font-size:13px;background:#f5f5f5;border-radius:8px;padding:11px 13px;margin-bottom:14px;line-height:1.6;color:#555;}
+.hidden{display:none!important;}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1a5c3a;color:white;padding:11px 20px;border-radius:24px;font-size:14px;z-index:300;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,0.2);}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hdr">
+    <div class="hdr-top">
+      <div><div class="hdr-sub" id="pt">0 of 0 items counted</div><h1>&#x1F9FE; Sysco Inventory</h1></div>
+      <div style="text-align:right;"><div style="font-size:11px;opacity:0.75;" id="fh"></div><div style="font-size:11px;opacity:0.75;" id="ph">0% complete</div></div>
+    </div>
+    <div class="pbar"><div class="pfill" id="pg" style="width:0%"></div></div>
+  </div>
+  <div class="tbar">
+    <label>Date</label><input type="date" id="dt">
+    <div class="dvd"></div>
+    <label>Manager</label><input type="text" id="mn" placeholder="Your name">
+  </div>
+  <div class="sbar"><input type="text" id="srch" placeholder="&#x1F50D; Search items or locations..." autocomplete="off" autocorrect="off" spellcheck="false"></div>
+  <div class="fbar">
+    <div class="ft on" onclick="sf('all',this)">All</div>
+    <div class="ft" onclick="sf('unfilled',this)">Not counted</div>
+    <div class="ft" onclick="sf('flagged',this)">&#x2691; Flagged <span id="ftc"></span></div>
+    <div class="ft" onclick="sf('filled',this)">Counted</div>
+  </div>
+  <div id="ic"></div>
+</div>
+<div class="foot">
+  <div class="fi">
+    <div class="flbar" id="flbar"></div>
+    <button class="sbtn" onclick="openSub()">&#x2709; Submit Inventory</button>
+  </div>
+</div>
+
+<!-- Submit sheet -->
+<div class="overlay hidden" id="sm">
+  <div class="sheet">
+    <h2>Submit Inventory</h2>
+    <div class="ibox" id="si"></div>
+    <div class="brow">
+      <button onclick="cm('sm')">Cancel</button>
+      <button class="pr" onclick="doSend()">Send Report</button>
+    </div>
+  </div>
+</div>
+
+<!-- Setup sheet -->
+<div class="overlay hidden" id="em">
+  <div class="sheet">
+    <h2>Email Setup (one time)</h2>
+    <p>Paste your three EmailJS IDs below. These are saved on this device and never need to be entered again.</p>
+    <label>Public Key</label><input type="text" id="ep" placeholder="your EmailJS public key">
+    <label>Service ID</label><input type="text" id="es" placeholder="service_2vz9aq8">
+    <label>Template ID</label><input type="text" id="et" placeholder="kua0blv">
+    <div style="font-size:11px;color:#999;margin-bottom:14px;">Free tier: 200 emails/month. You use ~24/month.</div>
+    <div class="brow">
+      <button onclick="skip()">Skip &#x2014; Download file</button>
+      <button class="pr" onclick="saveCfg()">Save &amp; Send</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="tst"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+const EML=['stacey@themartengroupllc.com','maurice@themartengroupllc.com'];
+const SEC=[
+  {id:"reg",label:"Register & Tapes",items:[{n:"Register Tape",loc:"Under Register/Office"},{n:"Smoothie Tape",loc:"Under Register/Office"},{n:"Food Tape",loc:"Under Register/Office"}]},
+  {id:"cups",label:"Straws & Cups",items:[{n:"Straw Edible Lime 24cm",loc:"Blender Cabinets"},{n:"Straw Edible Strawberry 24cm",loc:"Blender Cabinets"},{n:"24oz Cups (sleeves)",loc:"Under Panini Press"},{n:"24oz Lids (sleeves)",loc:"Under Panini Press"},{n:"12oz Cups (sleeves)",loc:"Back Col 2, top"},{n:"12oz Lids (sleeves)",loc:"Back Col 2, 2nd shelf"},{n:"Straw Wrapped Translucent Giant Blue",loc:"Back Col 2, bottom"},{n:"2oz Portion Cups (sleeves)",loc:"Back Col 1, 3rd shelf"},{n:"Lid Plastic Clear 1.5-2.5oz Portion",loc:"Back Col 1, 3rd shelf"},{n:"Round Lid Covers To-Go Smoothies",loc:"Expo"}]},
+  {id:"supp",label:"Supplements",items:[{n:"Supplement Mix Multivitamin",loc:"Green Cabinets"},{n:"Supplement Powder Vitamin B12",loc:"Green Cabinets"},{n:"Supplement Tablet Energizer",loc:"Green Cabinets"},{n:"Supplement Tablet Fat Burner",loc:"Green Cabinets"},{n:"Supplement Powder Probiotic",loc:"Green Cabinets"},{n:"Supplement Nutrition Flaxseed",loc:"Green Cabinets"},{n:"Supplement Powder Immune Complex",loc:"Green Cabinets"},{n:"Powder Protein Collagen Peptides",loc:"Green Cabinets"},{n:"Supplement Pea Protein",loc:"Back Col 1, top"},{n:"Supplement Mix Whey Blend",loc:"Back Col 1, top"}]},
+  {id:"dry",label:"Green Cabinets — Dry Goods",items:[{n:"Coffee Instant Regular Jar",loc:"Green Cabinets"},{n:"Seed Chia",loc:"Green Cabinets"},{n:"Sugar Substitute Splenda",loc:"Green Cabinets"},{n:"Gloves Unopened Boxes",loc:"Green Cabinets"},{n:"Glove Poly Hybrid Clear Large",loc:"Green Cabinets"},{n:"Glove Poly Hybrid Clear Medium",loc:"Green Cabinets"},{n:"Wrap Dry Wax Deli 12x10.75 (boxes)",loc:"Green Cabinets"},{n:"Bag Plastic 5.5x5.5 Cookie",loc:"Green Cabinets"},{n:"Plastic Wrap",loc:"Green Cabinets"},{n:"Box Cleaning Towels",loc:"Green Cabinets"}]},
+  {id:"s1",label:"Side Shelving — Col 1",items:[{n:"Drink Mix Chocolate Frappe Powder",loc:"Col 1, top"},{n:"Drink Mix White Frappe Powder",loc:"Col 1, top"},{n:"Drink Mix Cappuccino Frappe",loc:"Col 1, 2nd shelf"},{n:"Spice Cinnamon Ground",loc:"Col 1, 2nd shelf"},{n:"Topping Wonton Strips Regular",loc:"Col 1, 2nd shelf"},{n:"Topping Wonton Strips Spicy",loc:"Col 1, 2nd shelf"},{n:"Topping Cheese Crisp Parmesan",loc:"Col 1, 2nd shelf"},{n:"Almond Blanched Sliced",loc:"Col 1, 2nd shelf"},{n:"Goji Berries",loc:"Col 1, 2nd shelf"},{n:"Cacao Nibs",loc:"Col 1, 2nd shelf"},{n:"Pineapple Tidbit In Juice",loc:"Col 1, 2nd shelf"},{n:"Bean Black",loc:"Col 1, 3rd shelf"},{n:"Cream of Coconut Concentrate",loc:"Col 1, 3rd shelf"},{n:"Juice Concentrate Pomegranate",loc:"Col 1, bottom"},{n:"Juice Lime Select",loc:"Col 1, bottom"},{n:"Juice Cranberry Concentrate",loc:"Col 1, bottom"},{n:"Juice Concentrate Kiwi",loc:"Col 1, bottom"},{n:"Puree Berry Acai",loc:"Col 1, bottom"},{n:"Dragon Fruit Base",loc:"Col 1, bottom"}]},
+  {id:"s2",label:"Side Shelving — Col 2",items:[{n:"Chip Potato Baked Regular Big Grab",loc:"Col 2, top"},{n:"Chip Potato Regular Sea Salt",loc:"Col 2, top"},{n:"Chip Potato Salted Vinegar Kettle",loc:"Col 2, top"},{n:"SunChips",loc:"Col 2, 2nd shelf"},{n:"Chip Potato Jalapeno Kettle",loc:"Col 2, 2nd shelf"},{n:"Chip Potato Smokehouse BBQ Kettle",loc:"Col 2, 2nd shelf"},{n:"Peanut Butter Creamy",loc:"Col 2, 2nd shelf"},{n:"Almond Butter",loc:"Col 2, 2nd shelf"},{n:"Salt Kosher Flake Coarse",loc:"Col 2, 2nd shelf"},{n:"Honey Pure Clover Grade A Jug",loc:"Col 2, 3rd shelf"},{n:"NUTELLA",loc:"Col 2, 3rd shelf"},{n:"Biscoff Cookie Crumble",loc:"Col 2, 3rd shelf"},{n:"Cereal Hot Oat Old Fashioned",loc:"Col 2, 3rd shelf"},{n:"Sauce Buffalo Red Hot",loc:"Col 2, bottom"},{n:"Cereal Granola Oats n Honey",loc:"Col 2, bottom"}]},
+  {id:"back",label:"Back Shelving",items:[{n:"Sugar Turbinado Raw Cane",loc:"Back Col 1, top"},{n:"Wrap Sandwich Paper 14x16 TSC Logo",loc:"Back Col 1, 2nd shelf"},{n:"Bag Plastic Small 14x14x8 TSC",loc:"Back Col 1, 3rd shelf"},{n:"Bag Plastic Large 18x16x9 TSC",loc:"Back Col 1, 3rd shelf"},{n:"Red/White Paper Boats",loc:"Back Col 1, 3rd shelf"},{n:"Napkins",loc:"Back Col 1, bottom"},{n:"Bowl Plastic 6oz Black Eco",loc:"Back Col 1, bottom"},{n:"Bowl Plastic Lids 6oz Black",loc:"Back Col 2, top"},{n:"Cutlery Kit",loc:"Back Col 2, 2nd shelf"},{n:"Tray Carrier 4 Cup Molded Fiber",loc:"Back Col 2, 3rd shelf"},{n:"Container Quesadilla Clamshell",loc:"Back Col 2, 3rd shelf"},{n:"Acai Bowls",loc:"Back Shelving"},{n:"Acai Bowl Lids",loc:"Back Shelving"},{n:"Bowl Bags",loc:"Back Shelving"},{n:"Lid Clear Dome 32oz Salad Bowl",loc:"Back Shelving"},{n:"Bowl Pulp Round 32oz",loc:"Back Shelving"},{n:"Tape",loc:"Expo"},{n:"Highlighters",loc:"Expo"},{n:"Ink Pens",loc:"Expo"}]},
+  {id:"wi",label:"Walk-In Cooler",items:[{n:"Date Pitted",loc:"Walk-In, top"},{n:"Salsa Tomato Roasted",loc:"Walk-In, top"},{n:"Sauce Salsa Verde Roasted",loc:"Walk-In, top"},{n:"Dressing Ranch Light",loc:"Walk-In, top"},{n:"Mayonnaise Chipotle Smokey",loc:"Walk-In, top"},{n:"Dressing Caesar",loc:"Walk-In, top"},{n:"Sauce Thai Peanut",loc:"Walk-In, 2nd"},{n:"Sauce Jamaican Jerk",loc:"Walk-In, 2nd"},{n:"Sauce Pesto Basil",loc:"Walk-In, 2nd"},{n:"Garlic Chopped In Oil",loc:"Walk-In, 2nd"},{n:"Dressing Mustard Country Dijon",loc:"Walk-In, 2nd"},{n:"Pickled Red Onion (frozen)",loc:"Walk-In, 2nd"},{n:"Cheese Cheddar Shredded White",loc:"Walk-In, 2nd"},{n:"Cheese Blend Firehouse Ultimate",loc:"Walk-In, 2nd"},{n:"Bacon Layflat Pre-cooked",loc:"Walk-In, 3rd"},{n:"Cheese Mozzarella Shredded",loc:"Walk-In, 3rd"},{n:"Cheese Parmesan Shredded Fancy",loc:"Walk-In, 3rd"},{n:"Cheese Monterey Pepper Jack Sliced",loc:"Walk-In, 3rd"},{n:"Cheese Cheddar Mild Shredded Yellow",loc:"Walk-In, 3rd"},{n:"Cheese American Shredded Extra Melt",loc:"Walk-In, 4th"},{n:"Feta",loc:"Walk-In, 4th"},{n:"Greek Yogurt Smoothie Bowls",loc:"Walk-In, 4th"},{n:"Cleaner Restroom Chlorinated",loc:"Walk-In, bottom corner"}]},
+  {id:"frz",label:"Freezer",items:[{n:"Coconut Flakes",loc:"Freezer, top left"},{n:"Bread Ciabatta Soft 4x4 Sliced",loc:"Freezer, top right"},{n:"Tortilla Flour 10in Pressed",loc:"Freezer, 2nd left"},{n:"Bread Panini Pregrilled 7in",loc:"Freezer, 2nd right"},{n:"Tortilla Flour 12in Pressed",loc:"Freezer, 2nd"},{n:"Bahama Mama Base",loc:"Freezer, 2nd"},{n:"Chia Oatmeal Pudding Base",loc:"Freezer, 3rd"},{n:"Acai Base",loc:"Freezer, 3rd right"},{n:"Cookie Chocolate Chunk",loc:"Freezer, 3rd"},{n:"Strawberry IQF",loc:"Freezer, 3rd left"},{n:"Blueberry IQF Whole",loc:"Freezer, 3rd left"},{n:"Dark Cherries",loc:"Freezer, 3rd"},{n:"Mango Fruit IQF",loc:"Freezer, 4th right"},{n:"Dragon Fruit IQF",loc:"Freezer, 4th"},{n:"Roasted Fuji Apples IQF",loc:"Freezer, 4th"},{n:"Yogurt Mix Nonfat Vanilla",loc:"Freezer, 4th"},{n:"Orange Juice Frozen Concentrate",loc:"Freezer, bottom left"},{n:"Turkey Breast Deli Sliced",loc:"Freezer, bottom left"},{n:"Chicken Breast Diced Grilled",loc:"Freezer, bottom center"},{n:"Sausage Crumble",loc:"Freezer, bottom center"},{n:"Egg Scramble",loc:"Freezer, bottom center"},{n:"Veg Blend Flame-Roasted Corn Jalapeno",loc:"Freezer, bottom center"},{n:"Potato Sweet Roasted Maple",loc:"Freezer, bottom right"},{n:"Dip Hummus Traditional",loc:"Freezer, bottom right"},{n:"Avocado Half",loc:"Freezer, bottom right"},{n:"Sauce Pesto Basil (freezer)",loc:"Freezer, bottom right"},{n:"Rice White IQF",loc:"Freezer, bottom"}]},
+  {id:"cln",label:"Cleaning & Paper Supplies",items:[{n:"Liner Trash 43x47 .7mm Clear",loc:"Cleaning Shelves"},{n:"Liner Trash 40x46 1.1mm Clear",loc:"Cleaning Shelves"},{n:"Pink Cloths",loc:"Cleaning Shelves"},{n:"Tissue Toilet 360 High Capacity",loc:"Cleaning Shelves"},{n:"Paper Towel Roll Refill",loc:"Cleaning Shelves"},{n:"Cleaner Disinfectant Peroxide",loc:"Cleaning Shelves"},{n:"Cleaner Liquid Food Release Agent",loc:"Cleaning Shelves"},{n:"Detergent Liquid Manual Dish",loc:"Cleaning Shelves"},{n:"Cleaner Floor All Surface",loc:"Cleaning Shelves"},{n:"Soap Hand Antibacterial Foam",loc:"Cleaning Shelves"},{n:"Sanitizer Liquid Kayquat",loc:"Cleaning Shelves"},{n:"Polish Stainless Steel Aerosol",loc:"Cleaning Shelves"},{n:"Cleaner Degreaser Heavy Duty",loc:"Cleaning Shelves"},{n:"Degreaser Heavy Quick Serv",loc:"Cleaning Shelves"},{n:"Cleaning Rags",loc:"Cleaning Shelves"}]},
+];
+
+let C={},N={},F={},COL={},ON={},af='all',sv='';
+const K=(s,i)=>s+'_'+i;
+function gc(){return{pub:localStorage.getItem('ejp')||'',svc:localStorage.getItem('ejs')||'',tpl:localStorage.getItem('ejt')||''};}
+document.getElementById('dt').value=new Date().toISOString().slice(0,10);
+function sf(f,el){af=f;document.querySelectorAll('.ft').forEach(t=>t.classList.remove('on'));el.classList.add('on');render();}
+function iv(sId,i,it){
+  const key=K(sId,i);
+  const sm=!sv||it.n.toLowerCase().includes(sv)||(it.loc||'').toLowerCase().includes(sv);
+  if(!sm)return false;
+  if(af==='unfilled')return C[key]===undefined||C[key]==='';
+  if(af==='flagged')return!!F[key];
+  if(af==='filled')return C[key]!==undefined&&C[key]!=='';
+  return true;
+}
+function render(){
+  const ct=document.getElementById('ic');ct.innerHTML='';
+  let t=0,f=0,fl=0;
+  SEC.forEach(s=>s.items.forEach((_,i)=>{const key=K(s.id,i);t++;if(C[key]!==undefined&&C[key]!=='')f++;if(F[key])fl++;}));
+  up(f,t,fl);
+  SEC.forEach(sec=>{
+    const vis=sec.items.filter((it,i)=>iv(sec.id,i,it));
+    if(!vis.length)return;
+    const sf2=vis.filter(it=>{const key=K(sec.id,sec.items.indexOf(it));return C[key]!==undefined&&C[key]!=='';}).length;
+    const sfl=vis.filter(it=>F[K(sec.id,sec.items.indexOf(it))]).length;
+    const w=document.createElement('div');
+    const h=document.createElement('div');
+    h.className='sh'+(COL[sec.id]?' collapsed':'');
+    h.innerHTML=`<div class="shl"><span class="cv">&#x25BC;</span><span>${sec.label}</span></div><div class="sm2">${sfl?`<span class="fp">&#x2691; ${sfl}</span>`:''}<span class="sc">${sf2}/${vis.length}</span></div>`;
+    const cb=document.createElement('button');cb.className='cbtn';cb.textContent='Clear';
+    cb.onclick=e=>{e.stopPropagation();clrSec(sec.id);};h.appendChild(cb);
+    const bd=document.createElement('div');
+    if(COL[sec.id])bd.classList.add('hidden');
+    h.querySelector('.shl').onclick=()=>{COL[sec.id]=!COL[sec.id];h.classList.toggle('collapsed');bd.classList.toggle('hidden');};
+    w.appendChild(h);
+    vis.forEach(it=>{
+      const oi=sec.items.indexOf(it);const key=K(sec.id,oi);
+      const val=C[key]!==undefined?C[key]:'';
+      const ifl=!!F[key];const hn=N[key]&&N[key].trim();
+      const r=document.createElement('div');
+      r.className='ir'+(val!==''?' ok':'')+(ifl?' fl':'');
+      r.innerHTML=`<div class="iname">${it.n}<span class="iloc">${it.loc||''}</span></div><div class="qc"><button class="qbtn" onclick="chg('${key}',-1)">&#x2212;</button><input class="qin" type="text" inputmode="decimal" value="${val}" placeholder="&mdash;" data-k="${key}" oninput="sq(this)"><button class="qbtn" onclick="chg('${key}',1)">+</button></div><button class="ibtn ${ifl?'fon':''}" onclick="tf('${key}')" title="Flag for order">&#x2691;</button><button class="ibtn ${hn?'non':''}" onclick="tn('${key}')" title="Add note">&#x1F4DD;</button>`;
+      bd.appendChild(r);
+      if(ON[key]){const nr=document.createElement('div');nr.className='nrow';nr.innerHTML=`<textarea rows="2" placeholder="Note..." data-nk="${key}" oninput="sn(this)">${N[key]||''}</textarea>`;bd.appendChild(nr);}
+    });
+    w.appendChild(bd);ct.appendChild(w);
+  });
+}
+function up(f,t,fl){
+  const p=t?Math.round(f/t*100):0;
+  document.getElementById('pg').style.width=p+'%';
+  document.getElementById('pt').textContent=`${f} of ${t} items counted`;
+  document.getElementById('ph').textContent=p+'% complete';
+  document.getElementById('fh').textContent=fl?`&#x2691; ${fl} flagged`:'';
+  document.getElementById('ftc').textContent=fl?`(${fl})`:'';
+  const fb=document.getElementById('flbar');
+  if(fl){fb.style.display='block';fb.textContent=`&#x2691; ${fl} to order`;}else fb.style.display='none';
+}
+function chg(key,d){C[key]=Math.max(0,(parseFloat(C[key])||0)+d);render();}
+function sq(el){C[el.dataset.k]=el.value;el.closest('.ir').classList.toggle('ok',el.value!=='');rp();}
+function sn(el){N[el.dataset.nk]=el.value;}
+function tf(key){F[key]=!F[key];render();}
+function tn(key){ON[key]=!ON[key];render();setTimeout(()=>{const ta=document.querySelector(`textarea[data-nk="${key}"]`);if(ta)ta.focus();},60);}
+function clrSec(sId){
+  const sec=SEC.find(s=>s.id===sId);
+  if(!sec||!confirm(`Clear all counts for "${sec.label}"?`))return;
+  sec.items.forEach((_,i)=>{const key=K(sId,i);delete C[key];delete ON[key];});render();
+}
+function rp(){
+  let t=0,f=0,fl=0;
+  SEC.forEach(s=>s.items.forEach((_,i)=>{const key=K(s.id,i);t++;if(C[key]!==undefined&&C[key]!=='')f++;if(F[key])fl++;}));
+  up(f,t,fl);
+}
+function br(){
+  const date=document.getElementById('dt').value||'Unknown';
+  const mgr=document.getElementById('mn').value||'Unknown';
+  let flagged=[],lines=[];
+  SEC.forEach(sec=>{
+    let sl=[];
+    sec.items.forEach((it,i)=>{
+      const key=K(sec.id,i);const qty=C[key];
+      if(qty===undefined||qty==='')return;
+      const ff=F[key]?'[ORDER] ':'';const nn=N[key]?` | Note: ${N[key]}`:'';
+      sl.push(`  ${ff}${it.n}: ${qty}${nn}`);
+      if(F[key])flagged.push(it.n);
+    });
+    if(sl.length){lines.push(`\n${sec.label.toUpperCase()}`);lines.push(...sl);}
+  });
+  let rpt=`SYSCO INVENTORY REPORT\nDate: ${date} | Manager: ${mgr} | Sent: ${new Date().toLocaleString()}\n`;
+  if(flagged.length)rpt+=`\nITEMS TO ORDER (${flagged.length}):\n${flagged.map(f=>`  - ${f}`).join('\n')}\n`;
+  rpt+=lines.join('\n');
+  return{date,mgr,flagged,rpt};
+}
+function openSub(){
+  const cfg=gc();
+  const box=document.getElementById('si');
+  if(cfg.pub&&cfg.svc&&cfg.tpl){
+    box.textContent=`Ready to email to ${EML.join(' and ')}.`;
+  }else{
+    box.innerHTML='<strong>Email not yet configured.</strong> Tap "Send Report" to enter your 3 EmailJS credentials.';
+  }
+  document.getElementById('sm').classList.remove('hidden');
+}
+function cm(id){document.getElementById(id).classList.add('hidden');}
+function skip(){cm('em');dlFile();}
+function saveCfg(){
+  const pub=document.getElementById('ep').value.trim();
+  const svc=document.getElementById('es').value.trim();
+  const tpl=document.getElementById('et').value.trim();
+  if(!pub||!svc||!tpl){toast('Please fill all three fields');return;}
+  localStorage.setItem('ejp',pub);localStorage.setItem('ejs',svc);localStorage.setItem('ejt',tpl);
+  cm('em');sendMail(pub,svc,tpl);
+}
+function dlFile(){
+  const{date,mgr,rpt}=br();
+  const blob=new Blob([rpt],{type:'text/plain'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;
+  a.download=`Inventory_${date}_${(mgr||'Manager').replace(/\s+/g,'_')}.txt`;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+  toast('Report downloaded!');
+}
+function doSend(){
+  cm('sm');const cfg=gc();
+  if(!cfg.pub||!cfg.svc||!cfg.tpl){document.getElementById('em').classList.remove('hidden');return;}
+  sendMail(cfg.pub,cfg.svc,cfg.tpl);
+}
+function sendMail(pub,svc,tpl){
+  const{date,mgr,flagged,rpt}=br();
+  emailjs.init(pub);
+  const subj=`Sysco Inventory — ${date} — ${mgr}`+(flagged.length?` — ${flagged.length} to order`:'');
+  toast('Sending...');
+  emailjs.send(svc,tpl,{to_email:EML.join(','),subject:subj,report_body:rpt,manager_name:mgr,inv_date:date,order_count:flagged.length,order_list:flagged.length?flagged.join(', '):'None'})
+  .then(()=>toast('Sent to Stacey & Maurice!'))
+  .catch(err=>{console.error(err);toast('Email failed — downloading instead');dlFile();});
+}
+function toast(msg){
+  const t=document.getElementById('tst');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+document.getElementById('srch').addEventListener('input',function(){sv=this.value.toLowerCase().trim();render();});
+render();
+</script>
+</body>
+</html>
