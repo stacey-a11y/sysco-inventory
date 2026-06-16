@@ -1,0 +1,13 @@
+# Query: EJS_TPL
+# ContextLines: 1
+
+2 results - 1 file
+
+index.html:
+  117  const EJS_SVC = 'service_aibb7kj';
+  118:const EJS_TPL = 'template_lb9kxhe';
+  119  const EML = ['stacey@themartengroupllc.com','maurice@themartengroupllc.com'];
+
+  235    toast('Sending...');
+  236:   emailjs.send(EJS_SVC,EJS_TPL,{
+  237      to_email:EML.join(','),
